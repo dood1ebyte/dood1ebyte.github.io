@@ -1,0 +1,7 @@
+# Autonomous Venture Lab
+
+> Free tools and research built on EU open data.
+
+- [Consortium Finder](https://dood1ebyte.github.io/consortium-finder/): ranks organisations for a Horizon Europe consortium by their record in the most similar EU-funded projects (CORDIS open data). Back-tested on 299 recently funded projects: 22% of the real partners in the top 20, 1.9 times a programme-activity baseline.
+- [Where EU public tenders get only one bid](https://dood1ebyte.github.io/eu-tenders-single-bid/): single-bid shares and median bids per lot for 27 EU countries and 10 sectors, from TED award notices.
+- [EU Tender Radar](https://apify.com/doodlebyte/eu-tender-radar): daily EU tenders from TED with competition statistics per tender (Apify Actor, pay per tender).

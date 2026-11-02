@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://dood1ebyte.github.io/sitemap.xml

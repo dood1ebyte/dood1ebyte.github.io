@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Horizon Europe Partner Search by Project Idea | Consortium Finder</title>
+<meta name="description" content="Describe your project idea and get the organisations with the strongest record in the most similar Horizon 2020 and Horizon Europe projects, with those projects as evidence. Free; runs in your browser.">
+<link rel="canonical" href="https://dood1ebyte.github.io/consortium-finder/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Consortium Finder","url":"https://dood1ebyte.github.io/consortium-finder/","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"description":"Ranks organisations for a Horizon Europe consortium by their record in the most similar EU-funded research projects (CORDIS open data)."}</script>
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1d1b;--muted:#5f5e58;--line:#e2dfd6;--card:#ffffff;--accent:#1f5f8b;--accent-fg:#ffffff;--chip:#eef2f5}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#161614;--fg:#ecebe6;--muted:#a9a79f;--line:#34332f;--card:#1f1f1c;--accent:#7fb6dc;--accent-fg:#10202b;--chip:#26303a}}
+:root[data-theme="dark"]{--bg:#161614;--fg:#ecebe6;--muted:#a9a79f;--line:#34332f;--card:#1f1f1c;--accent:#7fb6dc;--accent-fg:#10202b;--chip:#26303a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:880px;margin:0 auto;padding:28px 16px 64px}
+h1{font-size:clamp(1.6rem,4vw,2.2rem);margin:0 0 6px}
+.lede{color:var(--muted);margin:0 0 20px;max-width:68ch}
+form{display:grid;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+textarea{width:100%;min-height:110px;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+select,button{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+button{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);font-weight:600;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+label{display:flex;gap:6px;align-items:center}
+#status{color:var(--muted);min-height:1.5em;margin:12px 0}
+ol{padding:0;list-style:none;margin:0;display:grid;gap:10px}
+li.r{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.r h3{margin:0;font-size:1.02rem;overflow-wrap:anywhere}
+.meta{color:var(--muted);font-size:.9rem;margin:2px 0 6px}
+.chip{display:inline-block;background:var(--chip);border-radius:999px;padding:0 8px;font-size:.8rem;margin-right:4px}
+.r ul{margin:4px 0 0;padding-left:18px;font-size:.92rem}
+.r ul li{overflow-wrap:anywhere}
+a{color:var(--accent)}
+details{margin-top:28px;border-top:1px solid var(--line);padding-top:12px}
+details p,details li{color:var(--muted);max-width:72ch}
+</style>
+</head>
+<body>
+<main>
+<h1>Consortium Finder</h1>
+<p class="lede">Describe your project idea. Get the organisations with the strongest record in the most similar EU-funded
+research projects (Horizon 2020 and Horizon Europe), with those projects as evidence. Everything runs in your browser:
+your text is not sent anywhere.</p>
+<form id="f">
+  <textarea id="idea" aria-label="Project idea" placeholder="For example: underground hydrogen storage in salt caverns, geomechanics and monitoring"></textarea>
+  <div class="row">
+    <select id="country" aria-label="Country"><option value="">Any country</option></select>
+    <select id="type" aria-label="Organisation type">
+      <option value="">Any type</option><option value="HES">Universities</option><option value="REC">Research organisations</option>
+      <option value="PRC">Companies</option><option value="PUB">Public bodies</option><option value="OTH">Other</option>
+    </select>
+    <label><input type="checkbox" id="sme"> SMEs only</label>
+    <button id="go" disabled>Find partners</button>
+  </div>
+</form>
+<p id="status" role="status">Loading CORDIS data…</p>
+<ol id="results"></ol>
+<details>
+  <summary>How it ranks, and its limits</summary>
+  <ul>
+    <li>Your text is compared with the title and objective of each EU-funded project (word-based BM25 similarity on each
+      project's 40 most distinctive terms). The 50 most similar projects are kept.</li>
+    <li>Each organisation that was a coordinator or participant in those projects scores the sum of their similarity,
+      times 1.5 when it coordinated. Third parties and associated partners are not counted.</li>
+    <li>Tested on 299 recently funded projects with their partners hidden, it put 22% of the real partners in its top 20,
+      1.9 times a ranking by activity in the same programme.</li>
+    <li>Only organisations that have been in EU-funded projects can appear. A record shows experience, not quality or
+      availability: use the list as a start for contact.</li>
+  </ul>
+  <p>Page loads and searches are counted with public hit counters (hitscounter.dev, hits.sh). Nothing you type, no
+    cookies and no identifiers are sent; the counter services see an ordinary web request.</p>
+  <p id="source">Data: CORDIS (© European Union), open data.</p>
+</details>
+</main>
+<script type="module">
+import { createEngine } from './src/engine.js';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const TYPES = { HES: 'University', REC: 'Research organisation', PRC: 'Company', PUB: 'Public body', OTH: 'Other' };
+let engine;
+try {
+  const keys = ['meta', 'vocab', 'docs', 'projects', 'orgs', 'members'];
+  const parts = await Promise.all(keys.map((k) => fetch(`./data/${k}.json`).then((r) => { if (!r.ok) throw new Error(`${k}: HTTP ${r.status}`); return r.json(); })));
+  engine = createEngine(Object.fromEntries(keys.map((k, i) => [k, parts[i]])));
+  for (const c of engine.countries) $('country').insertAdjacentHTML('beforeend', `<option value="${esc(c)}">${esc(c)}</option>`);
+  $('status').textContent = `Ready: ${engine.meta.projects.toLocaleString()} projects, ${engine.meta.organisations.toLocaleString()} organisations (CORDIS snapshot ${engine.meta.snapshot}).`;
+  $('source').textContent = `Data: CORDIS (© European Union), open data, snapshot ${engine.meta.snapshot}.`;
+  $('go').disabled = false;
+} catch (e) {
+  $('status').textContent = `The data could not be loaded (${e.message}). Reload the page to try again.`;
+}
+$('f').addEventListener('submit', (ev) => {
+  ev.preventDefault();
+  const idea = $('idea').value.trim();
+  if (!engine) return;
+  if (idea.split(/\s+/).length < 3) { $('status').textContent = 'Describe the idea in a few more words: subject, method, application.'; return; }
+  const res = engine.find(idea, { top: 20, country: $('country').value || undefined, type: $('type').value || undefined, sme: $('sme').checked });
+  if (window.avlCount) window.avlCount('search/consortium-finder', true); // counts that a search ran; nothing typed is sent
+  $('status').textContent = res.length ? `${res.length} organisations, best first.` : 'No similar projects found. Try other subject words, or remove a filter.';
+  $('results').innerHTML = res.map((r, n) => `<li class="r"><h3>${n + 1}. ${esc(r.name)}</h3>
+    <div class="meta"><span class="chip">${esc(r.country || '–')}</span><span class="chip">${esc(TYPES[r.type] || r.type || 'type n/a')}</span>${r.sme ? '<span class="chip">SME</span>' : ''}
+    score ${r.score} · coordinated ${r.coordinated} of ${r.projects.length} similar projects</div>
+    <ul>${r.projects.slice(0, 5).map((p) => `<li><a href="https://cordis.europa.eu/project/id/${encodeURIComponent(p.id)}">${esc(p.acronym || p.id)}</a> (${esc(p.start.slice(0, 4))}, ${p.role}): ${esc(p.title)}</li>`).join('')}</ul></li>`).join('');
+});
+</script>
+<script src="/count.js" defer></script></body>
+</html>
