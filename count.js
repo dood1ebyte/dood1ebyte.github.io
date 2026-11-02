@@ -34,7 +34,12 @@
   }
   window.avlCount = count;
   var page = location.pathname.replace(/index\.html$/, '').replace(/^\/+|\/+$/g, '') || 'home';
-  count('load/' + page);
+  // Automated page loads (crawlers that run scripts, automated browsers) are counted apart, so page loads by people
+  // can be told from them. Searches and clicks are not split: crawlers do not submit forms or click.
+  var ua = navigator.userAgent || '';
+  var automated = navigator.webdriver === true ||
+    /bot|crawl|spider|slurp|headless|lighthouse|preview|python|curl|wget|httpclient|phantom/i.test(ua);
+  count((automated ? 'auto/' : '') + 'load/' + page);
   // Attribution: a click from this site to EU Tender Radar's Apify page (the only way a site visitor reaches it).
   function outbound(e) {
     var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
